@@ -28,8 +28,31 @@ def clear_tmp (tmp_folder):
         except Exception as e:
             print('Failed to delete %s. Reason: %s' % (file_path, e))
 
-def merge (file_1_name, file_2_name): 
+def merge (file_1_name, file_2_name, file_merged_name): 
     ##  дописать, как конкретно файлы соединяются 
+    # files can be merged while both of them are opened. 
+    file_1 = open(file_1_name, 'rb')
+    file_2 = open(file_2_name, 'rb')
+    file_merged = open(file_merged_name, 'ab')
+    result_size = (os.path.getsize(file_1_name) + os.path.getsize(file_1_name)) / 8 # result size in bytes / 4 = number len
+
+    for _ in range(result_size): #rewriting nums one after another
+        read_1 = file_1.read(4)
+        read_2 = file_2.read(4)
+        if read_1 <= read_2: 
+            file_merged.write(read_1)
+            read_2.seek(file_2.tell()-4)
+        else: 
+            file_merged.write(read_2)
+            read_1.seek(file_1.tell()-4)
+        if (file_1.size() - file_1.tell()) <= 1 or (file_2.size() - file_2.tell()) <= 1: 
+            leftover_file = file_1 if (file_1.size() - file_1.tell()) <= 1 else file_2
+
+            file_merged.write(leftover_file.read(os.path.getsize(leftover_file) - leftover_file.tell()))
+            return
+        
+
+
 
 
 if __name__ == '__main__':
@@ -58,7 +81,7 @@ if __name__ == '__main__':
         for t in process_array:
             t.join()
 
-    
+        # todo: write sorted lists merge
     
     
 
